@@ -3,7 +3,7 @@
   "app": "npx ts-node main.ts",
   "projectId": "e23c1d81-4c1d-44b0-8437-4d3072f56613",
   "sendCrashReports": "false",
-  "terraformProviders": [],
+  "terraformProviders": ["digitalocean/digitalocean"],
   "terraformModules": [],
   "context": {
     "excludeStackIdFromLogicalIds": "true",
