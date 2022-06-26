@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { App, Fn, TerraformStack } from "cdktf";
+import { App, Fn, TerraformOutput, TerraformStack } from "cdktf";
 import { DataDigitaloceanSshKey, DigitaloceanProvider, Droplet, Loadbalancer } from "./.gen/providers/digitalocean"
 
 class MyStack extends TerraformStack {
@@ -29,7 +29,7 @@ echo Droplet: $HOSTNAME, IP Address: $PUBLIC_IPV4 > /var/www/html/index.html
       })
     )
 
-    new Loadbalancer(this, 'lb', {
+    const lb = new Loadbalancer(this, 'lb', {
       name: 'default',
       region: 'lon1',
       algorithm: 'round_robin',
@@ -41,6 +41,14 @@ echo Droplet: $HOSTNAME, IP Address: $PUBLIC_IPV4 > /var/www/html/index.html
       }],
       dropletIds: droplets.map((droplet) => Fn.tonumber(droplet.id))
     })
+    
+    new TerraformOutput(this, "loadBalancerIP", {
+      value: lb.ip,
+    });
+
+    droplets.forEach((droplet, index) => new TerraformOutput(this, `droplet${index}IP`, {
+      value: droplet.ipv4Address
+    }))
   }
 }
 
