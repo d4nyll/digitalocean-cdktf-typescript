@@ -1,6 +1,6 @@
 import { Construct } from "constructs";
-import { App, TerraformStack } from "cdktf";
-import { DataDigitaloceanSshKey, DigitaloceanProvider, Droplet } from "./.gen/providers/digitalocean"
+import { App, Fn, TerraformStack } from "cdktf";
+import { DataDigitaloceanSshKey, DigitaloceanProvider, Droplet, Loadbalancer } from "./.gen/providers/digitalocean"
 
 class MyStack extends TerraformStack {
   constructor(scope: Construct, name: string) {
@@ -28,6 +28,19 @@ echo Droplet: $HOSTNAME, IP Address: $PUBLIC_IPV4 > /var/www/html/index.html
 `
       })
     )
+
+    new Loadbalancer(this, 'lb', {
+      name: 'default',
+      region: 'lon1',
+      algorithm: 'round_robin',
+      forwardingRule: [{
+        entryProtocol: 'http',
+        entryPort: 80,
+        targetProtocol: 'http',
+        targetPort: 80,
+      }],
+      dropletIds: droplets.map((droplet) => Fn.tonumber(droplet.id))
+    })
   }
 }
 
